@@ -14,8 +14,9 @@ The project communicates with the Simulator using the [uWebSocketIO](https://git
 [image2]: ./images/particle_count.png "particle count"
 [image3]: ./images/motion_models.png "motion model"
 [image4]: ./images/pseudo_code.png "pseudo code"
+[image5]: ./images/homogenous_transformation.png "homogenous transformation"
 ## Implementation of a Particle filter
-The overall implementation of a Particle filter involves the following steps: <br>
+The ultimate goal of Particle filter is to determine how well each particle represents the actual position of the car. The overall implementation of a Particle filter involves the following steps: <br>
 ![particle_filter_process][image1]
 
 ### Initialization
@@ -37,7 +38,15 @@ Since the sensor measurements are noisy, the noise components are derived from a
 The position of the car is described in map coordinates. The sensor measurements are described in vehicle coordinates, which has the x-axis in the direction of the car’s heading, the y-axis pointing orthogonal to the left of the car, and the z-axis pointing upwards.
 
 ### Update Step
+1. Transform each observation marker from the vehicle's coordinates to the map's coordinates, with respect to each particle.
+2. Each measurement is associated with a landmark identifier by mapping the closest landmark to each transformed observation.
+3. Calculate the weight value of the particle.
 
+#### Transforming observations to map coordinates
+To transform the observations to map coordinates, the map frame is rotated to match the particle's point of view. Then the origin of the frame to moved to the location of the particle. Both these actions are achieved by a matrix multiplication by using the **homogenous transformation** which takes in the observation coordinates x<sub>c</sub> and y<sub>c</sub>, particle coordinates x<sub>p</sub> and y<sub>p</sub> and a rotation angle θ and performs the desired transformation to map's coordinates.
+![motion_model][image5]
+
+The data is passed through a trigonometric function that maps a car coordinates to map coordinates.
 #### Data association
 
 ### Resampling step

@@ -97,13 +97,13 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
-  // reset weights of all particles
   for (int i=0 ; i < num_particles; ++i){
+    // reset weights of all particles
     particles[i].weight = 1.0;
     // Step 1: loop over observations
     vector<LandmarkObs> observations_t;
     for(unsigned int j=0; j < observations.size(); ++j){
-      // transform the observations (form local to global)
+      // transform the observations (from local to global)
       LandmarkObs observation_t;
       observation_t.id = observations[j].id;
       observation_t.x = observations[j].x * cos(particles[i].theta) - observations[j].y * sin(particles[i].theta) + particles[i].x;
@@ -116,7 +116,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     vector<LandmarkObs> predicted_landmarks;
     for (unsigned int k = 0; k < map_landmarks.landmark_list.size(); ++k) {
       Map::single_landmark_s current_landmark = map_landmarks.landmark_list[k];
-      //TODO check if dist function could be used instead of the below comparision
       if ((fabs((particles[i].x - current_landmark.x_f)) <= sensor_range) &&
           (fabs((particles[i].y - current_landmark.y_f)) <= sensor_range)) {
         predicted_landmarks.push_back(LandmarkObs {current_landmark.id_i, current_landmark.x_f, current_landmark.y_f});
