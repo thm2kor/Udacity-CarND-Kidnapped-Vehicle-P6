@@ -13,14 +13,14 @@ The project communicates with the Simulator using the [uWebSocketIO](https://git
 [image1]: ./images/particle_filter_process.png "particle filter implementation process"
 [image2]: ./images/particle_count.png "particle count"
 [image3]: ./images/motion_models.png "motion model"
-
+[image4]: ./images/pseudo_code.png "pseudo code"
 ## Implementation of a Particle filter
 The overall implementation of a Particle filter involves the following steps: <br>
 ![particle_filter_process][image1]
 
 ### Initialization
 An empirical [study](https://knowledge.udacity.com/questions/29851), cited by one of the Udacity mentors, on the number of particles against the error in x and y shows that the error rates are at its minimum for a particle count of 100 or more.
-![particle_count][image2]
+![particle_count][image2]<br>
 The results from the above study is used as the basis for the setting the particle count to **100**.
 The associated positions `x`, `y`, and heading `theta` of each particle is initialized using GPS input. As with all sensor based operations, this step is impacted by noise. The noise components are randomly chosen from a normal distribution with a mean around the respective values of  `x`, `y`, and `theta` and a standard deviations of **0.3, 0.3 and 0.001** respectively.
 ```c++
@@ -28,13 +28,24 @@ The associated positions `x`, `y`, and heading `theta` of each particle is initi
 double sigma_pos [3] = {0.3, 0.3, 0.01};
 ```
 
-### Prediction
-In the prediction step, the vehicle location is calculated based on bicycle motion model. Using the velocity and yaw-rate measurements, the vehicle's location is predicted by the following equations:<br>
+### Prediction Step
+In the prediction step, the vehicle location is calculated based on bicycle motion model. Using the control input variables (velocity and yaw-rate measurements), the vehicle's location is predicted by the following equations:<br>
 ![motion_model][image3]
 
-Since the sensor measurements are noisy, the noise components are randomly chosen from a normal distribution with a mean around the predicted values of  `x`, `y`, and `theta` and a standard deviations of **0.3, 0.3 and 0.001** respectively.
+Since the sensor measurements are noisy, the noise components are derived from a normal distribution with a mean around the predicted values of  `x`, `y`, and `theta` and a standard deviations of **0.3, 0.3 and 0.001** respectively.
 
 The position of the car is described in map coordinates. The sensor measurements are described in vehicle coordinates, which has the x-axis in the direction of the car’s heading, the y-axis pointing orthogonal to the left of the car, and the z-axis pointing upwards.
+
+### Update Step
+
+#### Data association
+
+### Resampling step
+
+
+---
+
+**NOTE:** All screenshots linked in this README file are taken over from the Udacity CarND program - Lesson - Particle filter.
 
 ---
 ### Running the Code
