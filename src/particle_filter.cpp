@@ -28,6 +28,11 @@ using std::cout;
 using std::endl;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
+  /**
+   * Set the number of particles. Initialize all particles to
+   * first position (based on estimates of x, y, theta and their uncertainties
+   * from GPS) and all weights to 1.
+   */
   // empirical studies shows that the error rate of x and y
   // reduces from 0.5 to 0.1 as the number of particiles are
   // increased from 2 to 100. After 100, the error rates does
@@ -58,6 +63,9 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 
 void ParticleFilter::prediction(double delta_t, double std_pos[],
                                 double velocity, double yaw_rate) {
+  /**
+   * Add measurements to each particle and add random Gaussian noise.
+   */
   default_random_engine generator;
   // noise components for the x and y
   normal_distribution<double> noise_x(0, std_pos[0]);
@@ -80,6 +88,11 @@ void ParticleFilter::prediction(double delta_t, double std_pos[],
 
 void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
                                      vector<LandmarkObs>& observations) {
+   /**
+   *  Find the predicted measurement that is closest to each
+   *  observed measurement and assign the observed measurement to this
+   *  particular landmark.
+   */
   for (unsigned int i = 0; i < observations.size(); ++i) {
     double distance_min = std::numeric_limits<double>::max();
 
@@ -91,19 +104,24 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
       } // end if distance check
     } // end for - predictions
   } // end for - observations
-
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const vector<LandmarkObs> &observations,
                                    const Map &map_landmarks) {
+  /**
+   * Update the weights of each particle using a mult-variate Gaussian
+   * distribution.
+   * NOTE: The observations are given in the VEHICLE'S coordinate system.
+   * The particles are located according to the MAP'S coordinate system.
+   */
   for (int i=0 ; i < num_particles; ++i){
     // reset weights of all particles
     particles[i].weight = 1.0;
     // Step 1: loop over observations
     vector<LandmarkObs> observations_t;
     for(unsigned int j=0; j < observations.size(); ++j){
-      // transform the observations (from local to global)
+      // transform the observations to map coordinates using homogenous transformation matrix
       LandmarkObs observation_t;
       observation_t.id = observations[j].id;
       observation_t.x = observations[j].x * cos(particles[i].theta) - observations[j].y * sin(particles[i].theta) + particles[i].x;
@@ -122,26 +140,31 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       }
     } //end loop for predicted_landmarks
 
-    //Step 3: Associate observations with predicted landmarks.
+    // Step 3: associate the closest landmark to each transformed observation.
     dataAssociation(predicted_landmarks, observations_t);
 
-    //Step 4:
+    // Step 4: calculate each particle's final weight
+    // as the product of each measurement's Multivariate-Gaussian probability density.
     for(int m=0; m < int(observations_t.size());m++){
       Map::single_landmark_s landmark = map_landmarks.landmark_list.at(observations_t[m].id-1);
-      double x_diff = pow(observations_t[m].x - landmark.x_f, 2) / (2 * pow(std_landmark[0], 2));
-      double y_diff = pow(observations_t[m].y - landmark.y_f, 2) / (2 * pow(std_landmark[1], 2));
-      double weight_temp = exp(-(x_diff + y_diff)) / (2 * M_PI * std_landmark[0] * std_landmark[1]);
-      particles[i].weight *=  weight_temp;
+      double gauss_norm = 1 / (2 * M_PI * std_landmark[0] * std_landmark[1]);
+      double exponent = (pow(observations_t[m].x - landmark.x_f, 2) / (2 * pow(std_landmark[0], 2)))
+                     + (pow(observations_t[m].y - landmark.y_f, 2) / (2 * pow(std_landmark[1], 2)));
+      particles[i].weight *= gauss_norm * exp(-exponent);
     }
+    // update the weights. TODO: Check if we need to normalize the weights
     weights[i] = particles[i].weight;
-    // cleanup
+    // cleanup the vector<LandmarkObs> so that they are ready for the next particle
     predicted_landmarks.clear();
     observations_t.clear();
   }//end loop for number of particiles
 }
 
 void ParticleFilter::resample() {
-
+  /**
+   * Resample particles with replacement with probability proportional
+   *   to their weight.
+   */
   default_random_engine generator;
   // std::discrete_distribution produces random integers on the interval [0, n)
   // where the probability of each individual integer i is
