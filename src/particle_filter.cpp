@@ -218,3 +218,18 @@ string ParticleFilter::getSenseCoord(Particle best, string coord) {
   s = s.substr(0, s.length()-1);  // get rid of the trailing space
   return s;
 }
+#ifdef DEBUG
+// Writes particle positions to a file.
+void ParticleFilter::write(std::string filename)
+{
+  std::ofstream output;
+  //std::remove(filename.c_str()); //delete the file is already existing
+  output.open(filename, std::ios::app);
+  // Go through each particle and write the particle data into the file
+  for (int i = 0; i < num_particles; ++i){
+      output << particles[i].id << "," << particles[i].x << "," << particles[i].y <<
+              "," << particles[i].theta << "," << particles[i].weight << endl;
+  }
+  output.close();
+}
+#endif
