@@ -3,6 +3,7 @@
 
 ## Project Introduction
 The objective of this project is to find a robot, which has been kidnapped and transported to a new location. The robot has a map of its location, a (noisy) GPS estimate of its initial location, and lots of (noisy) sensor and control data. The project will implement a 2 dimensional particle filter in C++ to detect the actual location of the Robot.
+Particle filter belongs to the class of Bayesian Filter, which recursively estimates an objects state using incoming noisy measurements.
 
 A [simulator](https://github.com/udacity/self-driving-car-sim/) is provided by Udacity which can be used to visualize the motion of the kidnapped car with all of its landmark measurements. The simulator provides the script for the noisy position data, vehicle controls, and noisy observations. The simulator also displays the best particle's sensed positions, along with the corresponding map ID associations. If the green laser sensors from the car nearly overlap the blue laser sensors from the particle, this means that the particle transition calculations are done correctly.
 
@@ -59,7 +60,13 @@ Next step is to calculate the particle's final weight. The particles final weigh
 ![final_weight_calculation][image7]
 
 ### Resampling step
+In the final step, the samples are replaced with a probability proportional to their weight. Resampling removes particles that are way off and increases the number of particles that show a good fit, thus increasing the overall average fit of the ensemble. Randomly selecting makes sure to not get stuck in a local optimum.
 
+---
+
+## Results
+The evaluation of the particle filter is done by using the weighted mean error function. The simulator calculates the error using the ground truth position of the car and the weights of the particles.
+The simulator draws a **blue circle** on the best particle selected by the program. The **blue lines** are the sensor detections from the best particle to the landmarks in range. If the position of the "car" and the "blue circle" are overlapping, the particle filter implementation is successful. The simulator evaluates the results for a pre-defined time and displays the message "Success. Your Particle filter passed", if the localization errors are within the thresholds.
 
 ---
 

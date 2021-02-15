@@ -172,12 +172,9 @@ void ParticleFilter::resample() {
 
   // same concept as that of the sampling wheel
   std::discrete_distribution<> weight_dist(weights.begin(), weights.end());
-
   vector<Particle> resampled_particles;
-
-  int index = 0;
   for(int i=0; i<num_particles; i++){
-    index = weight_dist(generator);
+    int index = weight_dist(generator);
     resampled_particles.push_back(particles[index]);
   }
   particles = resampled_particles;
