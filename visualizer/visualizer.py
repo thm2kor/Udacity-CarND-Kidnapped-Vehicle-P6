@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
 from tqdm import tqdm
-import os
 import argparse
 
+      
 map_file = '../data/map_data.txt'
 result_file = '../images/'
 debug_data_init = '../debug/parameter-init.txt'
@@ -71,21 +71,27 @@ def plot_particles_stage2():
         
         #prepare the color map
         cmap = mcolors.ListedColormap(plt.rcParams['axes.prop_cycle'].by_key()['color'])
-        
+        #with plt.style.context(('fivethirtyeight')):
         #plot the scatter charts - 1 - shows the particles after weights update
-        fig, (ax_update, ax_resample) = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True,figsize=(28, 12))
+        fig, axes = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True,figsize=(28, 12))
+              
+        plt.subplots_adjust(wspace=0.01, hspace=0)
         
-        im_update = ax_update.scatter(x_update, y_update, s=100, c=weight_update, cmap=cmap,  marker="o")
-        ax_update.scatter(best_particle_data[i][0], best_particle_data[i][1], s=500, c='g', marker="*")
-        ax_update.set_title('@Time step :{:d} - Particle after UpdateWeights'.format(i), fontsize=24)
-                
+        im_update = axes[0].scatter(x_update, y_update, s=100, c=weight_update, cmap=cmap,  marker="o")
+        axes[0].scatter(best_particle_data[i][0], best_particle_data[i][1], s=500, c='g', marker="*")
+        axes[0].set_title('@Time step :{:d} - Particle after UpdateWeights'.format(i), fontsize=24)
+        
         #plot the scatter charts - 2 - shows the particles after resanpling
-        ax_resample.scatter(x_resample, y_resample, s=100, c=weight_resample, cmap=cmap, marker="o")
-        ax_resample.set_title('@ Time step :{:d} - Particle after Resampling'.format(i), fontsize=24)
+        axes[1].scatter(x_resample, y_resample, s=100, c=weight_resample, cmap=cmap, marker="o")
+        axes[1].set_title('@ Time step :{:d} - Particle after Resampling'.format(i), fontsize=24)
         
-        fig.colorbar(im_update)# , ax=ax_update)
+        fig.colorbar(im_update, pad=0.005)# , ax=ax_update)
         #fig.colorbar(im_resample, ax=ax_resample)
-        
+        for ax in axes:                
+            ax.grid(b=True, which='major', color='#666666', linestyle='-')        
+            ax.minorticks_on()
+            ax.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+                     
         plt.savefig(result_file + 'plot_at_time_' + str(i) + '.jpg')
         plt.tight_layout()
         plt.close(fig)
