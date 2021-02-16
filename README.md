@@ -1,6 +1,8 @@
 # Particle Filter Implementation
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
+![cover_image](./images/graphic_track.jpg)
+
 ## Project Introduction
 The objective of this project is to find a robot, which has been kidnapped and transported to a new location. The robot has a map of its location, a (noisy) GPS estimate of its initial location, and lots of (noisy) sensor and control data. The project will implement a 2 dimensional particle filter in C++ to detect the actual location of the Robot.
 Particle filter belongs to the class of Bayesian Filter, which recursively estimates an objects state using incoming noisy measurements.
@@ -18,6 +20,13 @@ The project communicates with the Simulator using the [uWebSocketIO](https://git
 [image5]: ./images/homogenous_transformation.png "homogenous transformation"
 [image6]: ./images/data_association.png "data association"
 [image7]: ./images/final_weight.png "final weight calculation"
+[image8]: ./images/pseudo_code.png "pseudocode"
+[image9]: ./images/plot_at_time_0.jpg "particle filter snapshot"
+[image10]: ./images/plot_at_time_1.jpg "particle filter snapshot"
+[image11]: ./images/plot_at_time_2.jpg "particle filter snapshot"
+[image12]: ./images/plot_at_time_3.jpg "particle filter snapshot"
+[image13]: ./images/plot_at_time_4.jpg "particle filter snapshot"
+[image14]: ./images/result.gif "result"
 
 ## Implementation of a Particle filter
 The ultimate goal of Particle filter is to determine how well each particle represents the actual position of the car. The overall implementation of a Particle filter involves the following steps: <br>
@@ -62,11 +71,36 @@ Next step is to calculate the particle's final weight. The particles final weigh
 ### Resampling step
 In the final step, the samples are replaced with a probability proportional to their weight. Resampling removes particles that are way off and increases the number of particles that show a good fit, thus increasing the overall average fit of the ensemble. Randomly selecting makes sure to not get stuck in a local optimum.
 
+The above steps can be summarized with the following pseudocode :<br>
+![pseudocode][image8]
+
 ---
 
 ## Results
 The evaluation of the particle filter is done by using the weighted mean error function. The simulator calculates the error using the ground truth position of the car and the weights of the particles.
-The simulator draws a **blue circle** on the best particle selected by the program. The **blue lines** are the sensor detections from the best particle to the landmarks in range. If the position of the "car" and the "blue circle" are overlapping, the particle filter implementation is successful. The simulator evaluates the results for a pre-defined time and displays the message "Success. Your Particle filter passed", if the localization errors are within the thresholds.
+The simulator draws a **blue circle** on the best particle selected by the program. The **blue lines** are the sensor detections from the best particle to the landmarks in range. If the position of the "car" and the "blue circle" are overlapping, the particle filter implementation is successful. The simulator evaluates the results for a pre-defined time and displays the message **"Success. Your Particle filter passed"**, if the localization errors are within the thresholds.
+
+A video capture of the evaluation process is shown below:
+![final_result][image14]
+
+
+## Visualization
+To visually diagnose the particle filter implementation, the `main.cpp` was adapted to log the values of the all the Particle objects at the following instances within the program:
+- After the call to `ParticleFilter::init(..)`
+- After the call to `ParticleFilter::updateWeights (..)`
+- After the call to `ParticleFilter::resample()`
+
+NOTE: Since the Prediction step was a straight forward calculation, the data was not collected for debugging.<br>
+After the completion of one round of execution, 2443 iterations of measurement were collected. For each measurement cycle, the data (x, y, theta, weights) of all particles (in total 100 * 2.443 = 244.300) were collected.
+
+A [python script](../visualizer/visualizer.py) was developed to plot the particles at different stages.<br>
+![snapshot_at_time0][image9]
+![snapshot_at_time1][image10]
+![snapshot_at_time2][image11]
+![snapshot_at_time3][image11]
+![snapshot_at_time4][image12]
+
+The above snapshot shows the position of the particles from the first 5 time steps. The scatter plot is coloured based on the `weight` parameter. The `best particle` with the maximum weight is shown with a *star* marker. After the sampling step, it could be seen that the particles with very low weights (coloured blue) are re-sampled and only the particles with high weightage remain.
 
 ---
 
